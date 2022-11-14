@@ -10,7 +10,7 @@ export default function Register() {
 	const [errors, setErrors] = createSignal(null);
 	const [loading, setLoading] = createSignal(false);
 	const [needToVerify, setNeedToVerify] = createSignal(false);
-	const { setUser, setSession } = useAuth();
+	const [_, { setUser, setSession }] = useAuth();
 
 	const navigate = useNavigate();
 
