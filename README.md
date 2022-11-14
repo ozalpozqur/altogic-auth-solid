@@ -632,6 +632,10 @@ render(
 ## Creating components folder
 Let's create a folder named `components/` inside the `src/` directory.
 
+Then create these files inside the `components/` directory:
+* Avatar.jsx
+* Sessions.jsx
+* UserInfo.jsx
 
 ### Avatar Component for uploading profile picture
 Open Avatar.js and paste the below code to create an avatar for the user. For convenience, we will be using the user's name as the name of the uploaded file and upload the profile picture to the root directory of our app storage. If needed you can create different buckets for each user or a generic bucket to store all provided photos of users. The Altogic Client Library has all the methods to manage buckets and files.
