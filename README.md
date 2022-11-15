@@ -333,7 +333,7 @@ export default function Register() {
 	const [errors, setErrors] = createSignal(null);
 	const [loading, setLoading] = createSignal(false);
 	const [needToVerify, setNeedToVerify] = createSignal(false);
-	const { setUser, setSession } = useAuth();
+	const [_, { setUser, setSession }] = useAuth();
 
 	const navigate = useNavigate();
 
@@ -379,7 +379,7 @@ export default function Register() {
 				)}
 				<input
 					value={name()}
-					onChange={e => setName(e.target.value)}
+					onInput={e => setName(e.target.value)}
 					autocomplete="given-name"
 					type="text"
 					placeholder="Type your name"
@@ -387,7 +387,7 @@ export default function Register() {
 				/>
 				<input
 					value={email()}
-					onChange={e => setEmail(e.target.value)}
+					onInput={e => setEmail(e.target.value)}
 					autocomplete="email"
 					type="email"
 					placeholder="Type your email"
@@ -395,7 +395,7 @@ export default function Register() {
 				/>
 				<input
 					value={password()}
-					onChange={e => setPassword(e.target.value)}
+					onInput={e => setPassword(e.target.value)}
 					type="password"
 					autocomplete="new-password"
 					placeholder="Type your password"
