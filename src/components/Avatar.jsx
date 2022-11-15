@@ -26,7 +26,7 @@ export default function Avatar() {
 		}
 	}
 	async function updateProfilePicture(file) {
-		const { data, errors } = await altogic.storage.bucket('root').upload(user?.name, file);
+		const { data, errors } = await altogic.storage.bucket('root').upload(`user_${user?._id}`, file);
 		if (errors) throw new Error("Couldn't upload file");
 		return data;
 	}

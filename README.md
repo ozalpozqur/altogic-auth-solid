@@ -1,7 +1,6 @@
-# How to Authenticate Email and Password Using Solid & Altogic
-
+# Email & Password Based Authentication Using Solid.js & Altogic
 ## Introduction
-**Altogic** is a Backend as a Service (BaaS) platform and provides a variety of services in modern web and mobile development. Most of the modern applications using React or other libraries/frameworks require to know the identity of a user. And this necessity allows an app to securely save user data and session in the cloud and provide more personalized functionalities and views to users.
+**Altogic** is a Backend as a Service (BaaS) platform and provides a variety of services in modern web and mobile development. Most of the modern applications using Solid or other libraries/frameworks require to know the identity of a user. And this necessity allows an app to securely save user data and session in the cloud and provide more personalized functionalities and views to users.
 
 Altogic has an Authentication service that integrates and implements well in JAMstack apps. It has a ready-to-use Javascript client library, and it supports many authentication providers such as email/password, phone number, magic link, and OAuth providers like Google, Facebook, Twitter, Github, etc.,
 
@@ -96,22 +95,24 @@ yarn add altogic
 Let’s create a `libs/` folder inside the `src/` directory to add altogic.js file.
 
 ```js
+// src/libs/altogic.js
 import { createClient } from 'altogic';
 
 const ENV_URL = ''; // replace with your envUrl
 const CLIENT_KEY = ''; // replace with your clientKey
-const API_KEY = ''; // replace with your apiKey
 
 const altogic = createClient(ENV_URL, CLIENT_KEY, {
-	apiKey: API_KEY,
 	signInRedirect: '/login',
 });
 
 export default altogic;
-```
-> Replace ENV_URL, CLIENT_KEY and API_KEY which is shown in the **Home** view of [Altogic Designer](https://designer.altogic.com/).
 
-## Install Solid Router
+```
+> Replace ENV_URL and CLIENT_KEY which is shown in the **Home** view of [Altogic Designer](https://designer.altogic.com/).
+
+> `signInRedirect` is the sign in page URL to redirect the user when user's session becomes invalid. Altogic client library observes the responses of the requests made to your app backend. If it detects a response with an error code of missing or invalid session token, it can redirect the users to this signin url.
+
+## Installing Solid Router
 We will use the **@solidjs/router** to create different routes in our app. Let’s install it.
 
 ```bash
@@ -152,8 +153,7 @@ export default function Home() {
 
 ## Replace the Login.jsx file with the following code:
 
-In this page, we will show a form to log in with email and password. We will use Altogic's `altogic.auth.signInWithEmail()` function to log in.
-
+In this page, we will show a form to log in with email and password. We will use Altogic's `altogic.auth.signInWithEmail()` function to sign-in.
 ```jsx
 import { A, useNavigate } from '@solidjs/router';
 import { batch, createSignal, For } from 'solid-js';
@@ -233,11 +233,12 @@ export default function Login() {
 ```
 
 ## Replace the LoginWithMagicLink.jsx file with the following code:
-In this page, we will show a form to log in with Magic Link with only email. We will use Altogic's `altogic.auth.sendMagicLinkEmail()` function to send the magic link to the user's email.
+In this page, we will show a form to **log in with Magic Link** with only email. We will use Altogic's `altogic.auth.sendMagicLinkEmail()` function to sending magic link to user's email.
 
-If there is a user matching the entered email address, this function sends a link to that user by mail. and if the link in the e-mail is clicked, the user is logged in.
 
-````jsx
+When the user clicks on the magic link in the email, Altogic verifies the validity of the magic link and, if successful, redirects the user to the redirect URL specified in your app authentication settings with an access token in a query string parameter named `access_token` The magic link flows in a similar way to the sign-up process. We use the `getAuthGrant()` method to create a new session and associated `sessionToken`.
+
+```jsx
 import { A } from '@solidjs/router';
 import { batch, createSignal, For } from 'solid-js';
 import altogic from '../libs/altogic';
@@ -309,10 +310,15 @@ export default function LoginWithMagicLink() {
 		</section>
 	);
 }
-````
+```
 
 ## Replace the Register.jsx file with the following code:
-In this page, we will show a form to sign up with email and password. We will use Altogic's `altogic.auth.signUpWithEmail()` function to sign up.
+In this page, we will show a form to sign up with email and password. We will use Altogic's `altogic.auth.signUpWithEmail()` function to sign-up.
+
+We will save session and user info to state if the api returns session. Then, user will be redirected to profile page.
+
+If `signUpWithEmail` does not return session, it means user need to confirm email, so we will show the success message.
+> **Note:** `signUpWithEmail` function can accept optional  third parameter data to save the user's profile. We will save the user's name to the database in this example.
 
 ```jsx
 import { A, useNavigate } from '@solidjs/router';
@@ -449,13 +455,8 @@ export default function Profile() {
 }
 ```
 
-
-
-
 ## Replace the AuthRedirect.jsx file with the following code:
-We use this page for verify the user's email address and Login With Magic Link Authentication.
-
-We will use Altogic's `altogic.auth.getAuthGrant()` function to log in with the handled token from the URL.
+In this page we use the `getAuthGrant()` method to create a new session and associated `sessionToken` for verify email or sign in with magic link.
 
 ```jsx
 import { A, useLocation, useNavigate, useSearchParams } from '@solidjs/router';
@@ -638,7 +639,9 @@ Then create these files inside the `components/` directory:
 * UserInfo.jsx
 
 ### Avatar Component for uploading profile picture
-Open Avatar.js and paste the below code to create an avatar for the user. For convenience, we will be using the user's name as the name of the uploaded file and upload the profile picture to the root directory of our app storage. If needed you can create different buckets for each user or a generic bucket to store all provided photos of users. The Altogic Client Library has all the methods to manage buckets and files.
+Open Avatar.js and paste the below code to create an avatar for the user. 
+
+For convenience, we will be using the user's `_id` as the name of the uploaded file and upload the profile picture to the root directory of our app storage. If needed you can create different buckets for each user or a generic bucket to store all provided photos of users. The Altogic Client Library has all the methods to manage buckets and files.
 
 ```jsx
 import altogic from '../libs/altogic';
@@ -669,7 +672,7 @@ export default function Avatar() {
 		}
 	}
 	async function updateProfilePicture(file) {
-		const { data, errors } = await altogic.storage.bucket('root').upload(user?.name, file);
+		const { data, errors } = await altogic.storage.bucket('root').upload(`user_${user?._id}`, file);
 		if (errors) throw new Error("Couldn't upload file");
 		return data;
 	}
