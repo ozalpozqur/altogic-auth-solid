@@ -66,7 +66,7 @@ Once the user created successfully, our Solid app will route the user to the Ver
 
 > If you want, you can deactivate or customize the mail verification from **App Settings -> Authentication** in Logic Designer.
 
-![Mail](github/15-mail.png)
+![Mail](github/mail.png)
 
 ## Create a new Solid app
 First, we need to create a new Solid app. Open your terminal and run the following command to create a new Solid app.
